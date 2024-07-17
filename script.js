@@ -35,3 +35,4 @@ browserOpen
       delay: 50,
     });
   });
+const sayHi = "Hello";
