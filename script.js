@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const codeObj = require("./codes");
 const loginLink = "https://www.hackerrank.com/auth/login";
 const email = "xoseh66934@tiervio.com";
 const password = "225@Hacker";
@@ -20,6 +21,69 @@ const waitAndClick = (selector, cpage) => {
 // defining a set timeout fn.
 const waitForTimeout = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+// defining a question solver fn.
+const questionSolver = (page, question, answer) => {
+  return new Promise((resolve, reject) => {
+    let questionisClicked = question.click();
+    questionisClicked
+      .then(() => {
+        let editorinFocus = waitAndClick(
+          ".monaco-editor.no-user-select.vs",
+          page
+        );
+        return editorinFocus;
+      })
+      .then(() => {
+        waitAndClick(".checkbox-input", page);
+      })
+      .then(() => {
+        return page.waitForSelector("textarea.custominput", page);
+      })
+      .then(() => {
+        return page.type("textarea.custominput", answer, { delay: 10 });
+      })
+      .then(() => {
+        return page.keyboard.down("Control");
+      })
+      .then(() => {
+        return page.keyboard.press("A", { delay: 100 });
+      })
+      .then(() => {
+        page.keyboard.press("X", { delay: 100 });
+      })
+      .then(() => {
+        return page.keyboard.up("Control");
+      })
+      .then(() => {
+        const editorInfocus = waitAndClick(
+          ".monaco-editor.no-user-select.vs",
+          page
+        );
+        return editorInfocus;
+      })
+      .then(() => {
+        return page.keyboard.down("Control");
+      })
+      .then(() => {
+        return page.keyboard.press("A", { delay: 100 });
+      })
+      .then(() => {
+        page.keyboard.press("V", { delay: 100 });
+      })
+      .then(() => {
+        return page.keyboard.up("Control");
+      })
+      .then(() => {
+        return page.click("button.hr-monaco-submit", { delay: 3000 });
+      })
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject();
+      });
+  });
 };
 
 let browserOpen = puppeteer.launch({
@@ -71,4 +135,19 @@ browserOpen
   .then(() => {
     const waitfor3sec = waitForTimeout(3000);
     return waitfor3sec;
+  })
+  .then(() => {
+    const questionsArray = page.$$(
+      ".ui-btn.ui-btn-normal.primary-cta.ui-btn-line-primary.ui-btn-styled"
+    );
+    return questionsArray;
+  })
+  .then((quesArr) => {
+    console.log("No of Questons is : ", quesArr.length);
+    const questionWillBeSolved = questionSolver(
+      page,
+      quesArr[1],
+      codeObj.answers[1]
+    );
+    return questionWillBeSolved;
   });
